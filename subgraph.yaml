@@ -1,0 +1,257 @@
+specVersion: 0.0.1
+description: Tradegen is a decentralized asset management and algo trading platform on Celo.
+repository: https://github.com/Tradegen/asset-management-subgraph
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: Registry
+    network: celo-alfajores
+    source:
+      address: "0x1DB1B73DDDAC81b957E744763d85c81dd638f2eE"
+      abi: Registry
+      startBlock: 11939990
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ./src/mappings/Registry.ts
+      entities:
+        - Registry
+      abis:
+        - name: Registry
+          file: ./abis/Registry.json
+        - name: Pool
+          file: ./abis/Pool.json
+        - name: CappedPool
+          file: ./abis/CappedPool.json
+      eventHandlers:
+        - event: CreatedCappedPool(address,address,address,string,uint256,uint256,uint256)
+          handler: handleCreatedCappedPool
+        - event: CreatedPool(address,address,address,string,uint256)
+          handler: handleCreatedPool
+  - kind: ethereum/contract
+    name: ERC20Verifier
+    network: celo-alfajores
+    source:
+      address: "0x0fFfb2104e1ccEAE1Aa9C742dA8E44D5Df5eCED7"
+      abi: ERC20Verifier
+      startBlock: 11939990
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ./src/mappings/ERC20Verifier.ts
+      entities:
+        - ERC20Verifier
+      abis:
+        - name: ERC20Verifier
+          file: ./abis/ERC20Verifier.json
+      eventHandlers:
+        - event: Approve(address,address,uint256)
+          handler: handleApprove
+  - kind: ethereum/contract
+    name: UbeswapLPVerifier
+    network: celo-alfajores
+    source:
+      address: "0xB7f56dc4F4e24C7512cb7f598216e8E9c283C4Bb"
+      abi: UbeswapLPVerifier
+      startBlock: 11939990
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ./src/mappings/UbeswapLPVerifier.ts
+      entities:
+        - UbeswapLPVerifier
+      abis:
+        - name: UbeswapLPVerifier
+          file: ./abis/UbeswapLPVerifier.json
+      eventHandlers:
+        - event: Approve(address,address,uint256)
+          handler: handleApprove
+        - event: UpdatedFarmAddress(address,address,address)
+          handler: handleUpdatedFarmAddress
+  - kind: ethereum/contract
+    name: MoolaInterestBearingTokenVerifier
+    network: celo-alfajores
+    source:
+      address: "0xB9B03d30ED7eCFC564EA503270F7659e173f739a"
+      abi: MoolaInterestBearingTokenVerifier
+      startBlock: 11939990
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ./src/mappings/MoolaInterestBearingTokenVerifier.ts
+      entities:
+        - MoolaInterestBearingTokenVerifier
+      abis:
+        - name: MoolaInterestBearingTokenVerifier
+          file: ./abis/MoolaInterestBearingTokenVerifier.json
+      eventHandlers:
+        - event: Approve(address,address,uint256)
+          handler: handleApprove
+        - event: Redeem(address,address,uint256)
+          handler: handleRedeem
+  - kind: ethereum/contract
+    name: MobiusFarmVerifier
+    network: celo-alfajores
+    source:
+      address: "0x4348D528489083D2F2C0385D86453cD75A92DD8A"
+      abi: MobiusFarmVerifier
+      startBlock: 11939990
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ./src/mappings/MobiusFarmVerifier.ts
+      entities:
+        - MobiusFarmVerifier
+      abis:
+        - name: MobiusFarmVerifier
+          file: ./abis/MobiusFarmVerifier.json
+      eventHandlers:
+        - event: Staked(address,address,uint256,uint256)
+          handler: handleStaked
+        - event: Unstaked(address,address,uint256,uint256)
+          handler: handleUnstaked
+  - kind: ethereum/contract
+    name: MoolaLendingPoolVerifier
+    network: celo-alfajores
+    source:
+      address: "0xFe891bead2323134ae5fd403a901BF29F98f32c0"
+      abi: MoolaLendingPoolVerifier
+      startBlock: 11939990
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ./src/mappings/MoolaLendingPoolVerifier.ts
+      entities:
+        - MoolaLendingPoolVerifier
+      abis:
+        - name: MoolaLendingPoolVerifier
+          file: ./abis/MoolaLendingPoolVerifier.json
+      eventHandlers:
+        - event: Deposit(address,address,address,uint256)
+          handler: handleDeposit
+        - event: Withdraw(address,address,address,uint256)
+          handler: handleWithdraw
+        - event: Repay(address,address,address,uint256)
+          handler: handleRepay
+  - kind: ethereum/contract
+    name: UbeswapFarmVerifier
+    network: celo-alfajores
+    source:
+      address: "0xC03B88001D463855Ae6aB1088cf5A9c9483a4Df7"
+      abi: UbeswapFarmVerifier
+      startBlock: 11939990
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ./src/mappings/UbeswapFarmVerifier.ts
+      entities:
+        - UbeswapFarmVerifier
+      abis:
+        - name: UbeswapFarmVerifier
+          file: ./abis/UbeswapFarmVerifier.json
+      eventHandlers:
+        - event: Staked(address,address,address,uint256)
+          handler: handleStaked
+        - event: Unstaked(address,address,address,uint256)
+          handler: handleUnstaked
+        - event: ClaimedReward(address,address,address,uint256)
+          handler: handleClaimedReward
+  - kind: ethereum/contract
+    name: UbeswapRouterVerifier
+    network: celo-alfajores
+    source:
+      address: "0x3838685190e9B74917a398436141E5D58eDA8A27"
+      abi: UbeswapRouterVerifier
+      startBlock: 11939990
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ./src/mappings/UbeswapRouterVerifier.ts
+      entities:
+        - UbeswapRouterVerifier
+      abis:
+        - name: UbeswapRouterVerifier
+          file: ./abis/UbeswapRouterVerifier.json
+      eventHandlers:
+        - event: Swap(address,address,address,uint256)
+          handler: handleSwap
+templates:
+  - kind: ethereum/contract
+    name: Pool
+    network: celo-alfajores
+    source:
+      abi: Pool
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ./src/mappings/Pool.ts
+      entities:
+        - Pool
+      abis:
+        - name: Pool
+          file: ./abis/Pool.json
+      eventHandlers:
+        - event: Deposit(address,uint256,uint256,address,uint256)
+          handler: handleDeposit
+        - event: Withdraw(address,uint256,uint256,address[],uint256[])
+          handler: handleWithdraw
+        - event: ExecutedTransaction(address,address,uint256)
+          handler: handleExecutedTransaction
+        - event: SetPoolManagerLogic(address)
+          handler: handleSetPoolManagerLogic
+  - kind: ethereum/contract
+    name: CappedPool
+    network: celo-alfajores
+    source:
+      abi: CappedPool
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ./src/mappings/CappedPool.ts
+      entities:
+        - CappedPool
+      abis:
+        - name: CappedPool
+          file: ./abis/CappedPool.json
+      eventHandlers:
+        - event: Deposit(address,uint256,uint256,address,uint256)
+          handler: handleDeposit
+        - event: Withdraw(address,uint256,uint256,address[],uint256[])
+          handler: handleWithdraw
+        - event: ExecutedTransaction(address,address,uint256)
+          handler: handleExecutedTransaction
+        - event: InitializedContracts(address,address)
+          handler: handleInitializedContracts
+        - event: TakeSnapshot(uint256)
+          handler: handleTakeSnapshot
+        - event: MarkedPoolAsEligible()
+          handler: handleMarkedPoolAsEligible
+  - kind: ethereum/contract
+    name: CappedPoolNFT
+    network: celo-alfajores
+    source:
+      abi: CappedPoolNFT
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ./src/mappings/CappedPoolNFT.ts
+      entities:
+        - CappedPoolNFT
+      abis:
+        - name: CappedPoolNFT
+          file: ./abis/CappedPoolNFT.json
+      eventHandlers:
+        - event: TransferSingle(indexed address,indexed address,indexed address,uint256,uint256)
+          handler: handleTransferSingle
