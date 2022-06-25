@@ -1,0 +1,785 @@
+type Registry @entity {
+    # Registry contract address.
+    id: ID!
+
+    poolCount: Int!
+    cappedPoolCount: Int!
+    txCount: Int!
+    poolTxCount: Int!
+    cappedPoolTxCount: Int!
+
+    # Measured in USD.
+    totalDeposits: BigInt!
+    totalWithdrawals: BigInt!
+    totalVolume: BigInt!
+    totalPoolVolume: BigInt!
+    totalCappedPoolVolume: BigInt!
+    totalValueLocked: BigInt!
+    poolTotalValueLocked: BigInt!
+    cappedPoolTotalValueLocked: BigInt!
+}
+
+type Pool @entity {
+    # Pool contract address.
+    id: ID!
+
+    manager: User!
+    name: String!
+    createdOn: BigInt!
+
+    # Denominated by 10000.
+    # Ex) 2% fee = 200.
+    performanceFee: BigInt!
+
+    # Measured in USD with 18 decimals.
+    tokenPrice: BigInt!
+
+    # Total number of pool tokens.
+    totalSupply: BigInt!
+
+    # Total cost basis across all investors in this pool.
+    totalDeposits: BigInt!
+
+    # Total USD value withdrawn from the pool.
+    totalWithdrawals: BigInt!
+
+    # Measured in USD with 18 decimals.
+    totalValueLocked: BigInt!
+
+    poolDayDatas: [PoolDayData]! @derivedFrom(field: "pool")
+    transactions: [PoolTransaction]! @derivedFrom(field: "pool")
+    poolManagerLogic: [PoolManagerLogic]! @derivedFrom(field: "pool")
+}
+
+type CappedPool @entity {
+    # CappedPool contract address.
+    id: ID!
+
+    manager: User!
+    name: String!
+
+    # Initial pool token price, in USD.
+    seedPrice: BigInt!
+
+    # Maximum number of pool tokens that can exist.
+    maxSupply: BigInt!
+
+    createdOn: BigInt!
+
+    # Denominated by 10000.
+    # Ex) 2% fee = 200.
+    performanceFee: BigInt!
+
+    # Measured in USD with 18 decimals.
+    tokenPrice: BigInt!
+
+    # Total number of pool tokens across all classes (1-4).
+    totalSupply: BigInt!
+
+    # Total cost basis across all investors in this pool.
+    totalDeposits: BigInt!
+
+    # Total USD value withdrawn from the pool.
+    totalWithdrawals: BigInt!
+
+    # Measured in USD with 18 decimals.
+    totalValueLocked: BigInt!
+
+    poolDayDatas: [CappedPoolDayData]! @derivedFrom(field: "cappedPool")
+    transactions: [CappedPoolTransaction]! @derivedFrom(field: "cappedPool")
+    poolManagerLogic: [PoolManagerLogic]! @derivedFrom(field: "cappedPool")
+}
+
+type PoolManagerLogic @entity {
+    # PoolManagerLogic contract address.
+    id: ID!
+
+    pool: Pool
+    cappedPool: CappedPool
+
+    availableAssets: [String]!
+    depositAssets: [String]!
+
+    # Timestamp at which the performance fee was last updated.
+    lastFeeUpdate: BigInt!
+
+    # Denominated by 10000.
+    # Ex) 2% fee = 200.
+    performanceFee: BigInt!
+}
+
+type PoolLookup @entity {
+    # Pool address + "-" + "lookup"
+    id: ID!
+
+    pool: Pool!
+    name: String!
+}
+
+type CappedPoolLookup @entity {
+    # CappedPool address + "-" + "lookup"
+    id: ID!
+
+    cappedPool: CappedPool!
+    cappedPoolNFT: String!
+    name: String!
+}
+
+type CappedPoolNFTLookup @entity {
+    # CappedPoolNFT address + "-" + "lookup"
+    id: ID!
+
+    cappedPool: CappedPool!
+}
+
+type User @entity {
+    # User wallet address.
+    id: ID!
+
+    # User's total cost basis across all pools and capped pools.
+    totalDeposits: BigInt!
+
+    # User's total USD withdrawn across all pools and capped pools.
+    totalWithdrawals: BigInt!
+
+    # User's total cost basis across all pools.
+    poolDeposits: BigInt!
+
+    # User's total USD withdrawn across all pools.
+    poolWithdrawals: BigInt!
+
+    # User's total cost basis across all capped pools.
+    cappedPoolDeposits: BigInt!
+
+    # User's total USD withdrawn across all capped pools.
+    cappedPoolWithdrawals: BigInt!
+
+    poolPositions: [PoolPosition]! @derivedFrom(field: "user")
+    cappedPoolPositions: [CappedPoolPosition]! @derivedFrom(field: "user")
+    managedPools: [Pool]! @derivedFrom(field: "manager")
+    managedCappedPools: [CappedPool]! @derivedFrom(field: "manager")
+}
+
+type PoolPosition @entity {
+    # Pool contract address + "-" + user wallet address.
+    id: ID!
+
+    user: User!
+
+    pool: Pool!
+
+    costBasis: BigInt!
+
+    amountWithdrawn: BigInt!
+
+    # Number of pool tokens.
+    tokenBalance: BigInt!
+}
+
+type CappedPoolPosition @entity {
+    # CappedPool contract address + "-" + user wallet address.
+    id: ID!
+
+    user: User!
+
+    cappedPool: CappedPool!
+
+    costBasis: BigInt!
+
+    amountWithdrawn: BigInt!
+
+    # Total number of pool tokens across all classes (1-4).
+    tokenBalance: BigInt!
+}
+
+type PoolTransaction @entity {
+    # Transaction hash.
+    id: ID!
+
+    blockNumber: BigInt!
+
+    timestamp: BigInt!
+
+    pool: Pool!
+
+    create: CreatePool
+    deposit: DepositPool
+    withdraw: WithdrawPool
+    executeTransaction: ExecuteTransactionPool
+}
+
+type CappedPoolTransaction @entity {
+    # Transaction hash.
+    id: ID!
+
+    blockNumber: BigInt!
+
+    timestamp: BigInt!
+
+    cappedPool: CappedPool!
+
+    create: CreateCappedPool
+    deposit: DepositCappedPool
+    withdraw: WithdrawCappedPool
+    executeTransaction: ExecuteTransactionCappedPool
+    takeSnapshot: TakeSnapshotCappedPool
+    markAsEligible: MarkAsEligibleCappedPool
+}
+
+type CreatePool @entity {
+    # Transaction hash + "-createPool".
+    id: ID!
+
+    poolTransaction: PoolTransaction!
+
+    timestamp: BigInt!
+
+    pool: Pool!
+
+    poolManagerLogic: PoolManagerLogic!
+
+    manager: User!
+
+    name: String!
+
+    performanceFee: BigInt!
+}
+
+type CreateCappedPool @entity {
+    # Transaction hash + "-createCappedPool".
+    id: ID!
+
+    cappedPoolTransaction: CappedPoolTransaction!
+
+    timestamp: BigInt!
+
+    cappedPool: CappedPool!
+
+    poolManagerLogic: PoolManagerLogic!
+
+    manager: User!
+
+    name: String!
+
+    performanceFee: BigInt!
+
+    seedPrice: BigInt!
+
+    maxSupply: BigInt!
+}
+
+type DepositPool @entity {
+    # Transaction hash + "-depositPool".
+    id: ID!
+
+    poolTransaction: PoolTransaction!
+
+    timestamp: BigInt!
+
+    pool: Pool!
+
+    user: User!
+
+    amountOfDepositAsset: BigInt!
+
+    amountOfUSD: BigInt!
+
+    depositAsset: String!
+
+    numberOfPoolTokensReceived: BigInt!
+}
+
+type DepositCappedPool @entity {
+    # Transaction hash + "-depositCappedPool".
+    id: ID!
+
+    cappedPoolTransaction: CappedPoolTransaction!
+
+    timestamp: BigInt!
+
+    cappedPool: CappedPool!
+
+    user: User!
+
+    amountOfDepositAsset: BigInt!
+
+    amountOfUSD: BigInt!
+
+    depositAsset: String!
+
+    numberOfPoolTokensReceived: BigInt!
+}
+
+type WithdrawPool @entity {
+    # Transaction hash + "-withdrawPool".
+    id: ID!
+
+    poolTransaction: PoolTransaction!
+
+    timestamp: BigInt!
+
+    pool: Pool!
+
+    user: User!
+
+    amountOfUSD: BigInt!
+
+    numberOfPoolTokensBurned: BigInt!
+}
+
+type WithdrawCappedPool @entity {
+    # Transaction hash + "-withdrawCappedPool".
+    id: ID!
+
+    cappedPoolTransaction: CappedPoolTransaction!
+
+    timestamp: BigInt!
+
+    cappedPool: CappedPool!
+
+    user: User!
+
+    amountOfUSD: BigInt!
+
+    numberOfPoolTokensBurned: BigInt!
+}
+
+type TakeSnapshotCappedPool @entity {
+    # Transaction hash + "-takeSnapshotCappedPool".
+    id: ID!
+
+    cappedPoolTransaction: CappedPoolTransaction!
+
+    timestamp: BigInt!
+
+    cappedPool: CappedPool!
+
+    unrealizedProfits: BigInt!
+}
+
+type MarkAsEligibleCappedPool @entity {
+    # Transaction hash + "-markAsEligibleCappedPool".
+    id: ID!
+
+    cappedPoolTransaction: CappedPoolTransaction!
+
+    timestamp: BigInt!
+
+    cappedPool: CappedPool!
+}
+
+type ExecuteTransactionPool @entity {
+    # Transaction hash + "-executeTransactionPool".
+    id: ID!
+
+    poolTransaction: PoolTransaction!
+
+    timestamp: BigInt!
+
+    pool: Pool!
+
+    externalContract: String!
+
+    transactionType: BigInt!
+
+    approveERC20: ApproveERC20 @derivedFrom(field: "executeTransactionPool")
+    approveUbeswapLP: ApproveUbeswapLP @derivedFrom(field: "executeTransactionPool")
+    approveMoolaToken: ApproveMoolaToken @derivedFrom(field: "executeTransactionPool")
+    redeemMoolaToken: RedeemMoolaToken @derivedFrom(field: "executeTransactionPool")
+    depositMobiusFarm: DepositMobiusFarm @derivedFrom(field: "executeTransactionPool")
+    withdrawMobiusFarm: WithdrawMobiusFarm @derivedFrom(field: "executeTransactionPool")
+    depositMoolaLendingPool: DepositMoolaLendingPool @derivedFrom(field: "executeTransactionPool")
+    borrowMoolaLendingPool: BorrowMoolaLendingPool @derivedFrom(field: "executeTransactionPool")
+    repayMoolaLendingPool: RepayMoolaLendingPool @derivedFrom(field: "executeTransactionPool")
+    stakeUbeswapFarm: StakeUbeswapFarm @derivedFrom(field: "executeTransactionPool")
+    withdrawUbeswapFarm: WithdrawUbeswapFarm @derivedFrom(field: "executeTransactionPool")
+    getRewardUbeswapFarm: GetRewardUbeswapFarm @derivedFrom(field: "executeTransactionPool")
+    swapUbeswapRouter: SwapUbeswapRouter @derivedFrom(field: "executeTransactionPool")
+    addLiquidityUbeswapRouter: AddLiquidityUbeswapRouter @derivedFrom(field: "executeTransactionPool")
+    removeLiquidityUbeswapRouter: RemoveLiquidityUbeswapRouter @derivedFrom(field: "executeTransactionPool")
+}
+
+type ExecuteTransactionCappedPool @entity {
+    # Transaction hash + "-executeTransactionCappedPool".
+    id: ID!
+
+    cappedPoolTransaction: CappedPoolTransaction!
+
+    timestamp: BigInt!
+
+    cappedPool: CappedPool!
+
+    externalContract: String!
+
+    transactionType: BigInt!
+
+    approveERC20: ApproveERC20 @derivedFrom(field: "executeTransactionCappedPool")
+    approveUbeswapLP: ApproveUbeswapLP @derivedFrom(field: "executeTransactionCappedPool")
+    approveMoolaToken: ApproveMoolaToken @derivedFrom(field: "executeTransactionCappedPool")
+    redeemMoolaToken: RedeemMoolaToken @derivedFrom(field: "executeTransactionCappedPool")
+    depositMobiusFarm: DepositMobiusFarm @derivedFrom(field: "executeTransactionCappedPool")
+    withdrawMobiusFarm: WithdrawMobiusFarm @derivedFrom(field: "executeTransactionCappedPool")
+    depositMoolaLendingPool: DepositMoolaLendingPool @derivedFrom(field: "executeTransactionCappedPool")
+    borrowMoolaLendingPool: BorrowMoolaLendingPool @derivedFrom(field: "executeTransactionCappedPool")
+    repayMoolaLendingPool: RepayMoolaLendingPool @derivedFrom(field: "executeTransactionCappedPool")
+    stakeUbeswapFarm: StakeUbeswapFarm @derivedFrom(field: "executeTransactionCappedPool")
+    withdrawUbeswapFarm: WithdrawUbeswapFarm @derivedFrom(field: "executeTransactionCappedPool")
+    getRewardUbeswapFarm: GetRewardUbeswapFarm @derivedFrom(field: "executeTransactionCappedPool")
+    swapUbeswapRouter: SwapUbeswapRouter @derivedFrom(field: "executeTransactionCappedPool")
+    addLiquidityUbeswapRouter: AddLiquidityUbeswapRouter @derivedFrom(field: "executeTransactionCappedPool")
+    removeLiquidityUbeswapRouter: RemoveLiquidityUbeswapRouter @derivedFrom(field: "executeTransactionCappedPool")
+}
+
+type ApproveERC20 @entity {
+    # Transaction hash + "-approveERC20".
+    id: ID!
+
+    timestamp: BigInt!
+
+    pool: Pool
+    cappedPool: CappedPool
+
+    executeTransactionPool: ExecuteTransactionPool
+    executeTransactionCappedPool: ExecuteTransactionCappedPool
+
+    token: String!
+    amount: BigInt!
+}
+
+type ApproveUbeswapLP @entity {
+    # Transaction hash + "-approveUbeswapLP".
+    id: ID!
+
+    timestamp: BigInt!
+
+    pool: Pool
+    cappedPool: CappedPool
+
+    executeTransactionPool: ExecuteTransactionPool
+    executeTransactionCappedPool: ExecuteTransactionCappedPool
+
+    token: String!
+    amount: BigInt!
+}
+
+type ApproveMoolaToken @entity {
+    # Transaction hash + "-approveMoolaToken".
+    id: ID!
+
+    timestamp: BigInt!
+
+    pool: Pool
+    cappedPool: CappedPool
+
+    executeTransactionPool: ExecuteTransactionPool
+    executeTransactionCappedPool: ExecuteTransactionCappedPool
+
+    token: String!
+    amount: BigInt!
+}
+
+type RedeemMoolaToken @entity {
+    # Transaction hash + "-redeemMoolaToken".
+    id: ID!
+
+    timestamp: BigInt!
+
+    pool: Pool
+    cappedPool: CappedPool
+
+    executeTransactionPool: ExecuteTransactionPool
+    executeTransactionCappedPool: ExecuteTransactionCappedPool
+
+    token: String!
+    amount: BigInt!
+}
+
+type DepositMobiusFarm @entity {
+    # Transaction hash + "-depositMobiusFarm".
+    id: ID!
+
+    timestamp: BigInt!
+
+    pool: Pool
+    cappedPool: CappedPool
+
+    executeTransactionPool: ExecuteTransactionPool
+    executeTransactionCappedPool: ExecuteTransactionCappedPool
+
+    stakingToken: String!
+    farmId: BigInt!
+    amount: BigInt!
+}
+
+type WithdrawMobiusFarm @entity {
+    # Transaction hash + "-withdrawMobiusFarm".
+    id: ID!
+
+    timestamp: BigInt!
+
+    pool: Pool
+    cappedPool: CappedPool
+
+    executeTransactionPool: ExecuteTransactionPool
+    executeTransactionCappedPool: ExecuteTransactionCappedPool
+
+    stakingToken: String!
+    farmId: BigInt!
+    amount: BigInt!
+}
+
+type DepositMoolaLendingPool @entity {
+    # Transaction hash + "-depositMoolaLendingPool".
+    id: ID!
+
+    timestamp: BigInt!
+
+    pool: Pool
+    cappedPool: CappedPool
+
+    executeTransactionPool: ExecuteTransactionPool
+    executeTransactionCappedPool: ExecuteTransactionCappedPool
+
+    lendingPool: String!
+    reserveAsset: String!
+    amount: BigInt!
+}
+
+type BorrowMoolaLendingPool @entity {
+    # Transaction hash + "-borrowMoolaLendingPool".
+    id: ID!
+
+    timestamp: BigInt!
+
+    pool: Pool
+    cappedPool: CappedPool
+
+    executeTransactionPool: ExecuteTransactionPool
+    executeTransactionCappedPool: ExecuteTransactionCappedPool
+
+    lendingPool: String!
+    reserveAsset: String!
+    amount: BigInt!
+}
+
+type RepayMoolaLendingPool @entity {
+    # Transaction hash + "-repayMoolaLendingPool".
+    id: ID!
+
+    timestamp: BigInt!
+
+    pool: Pool
+    cappedPool: CappedPool
+
+    executeTransactionPool: ExecuteTransactionPool
+    executeTransactionCappedPool: ExecuteTransactionCappedPool
+
+    lendingPool: String!
+    reserveAsset: String!
+    amount: BigInt!
+}
+
+type StakeUbeswapFarm @entity {
+    # Transaction hash + "-stakeUbeswapFarm".
+    id: ID!
+
+    timestamp: BigInt!
+
+    pool: Pool
+    cappedPool: CappedPool
+
+    executeTransactionPool: ExecuteTransactionPool
+    executeTransactionCappedPool: ExecuteTransactionCappedPool
+
+    farmAddress: String!
+    liquidityPair: String!
+    amount: BigInt!
+}
+
+type WithdrawUbeswapFarm @entity {
+    # Transaction hash + "-withdrawUbeswapFarm".
+    id: ID!
+
+    timestamp: BigInt!
+
+    pool: Pool
+    cappedPool: CappedPool
+
+    executeTransactionPool: ExecuteTransactionPool
+    executeTransactionCappedPool: ExecuteTransactionCappedPool
+
+    farmAddress: String!
+    liquidityPair: String!
+    amount: BigInt!
+}
+
+type GetRewardUbeswapFarm @entity {
+    # Transaction hash + "-getRewardUbeswapFarm".
+    id: ID!
+
+    timestamp: BigInt!
+
+    pool: Pool
+    cappedPool: CappedPool
+
+    executeTransactionPool: ExecuteTransactionPool
+    executeTransactionCappedPool: ExecuteTransactionCappedPool
+
+    farmAddress: String!
+    rewardToken: String!
+    amount: BigInt!
+}
+
+type SwapUbeswapRouter @entity {
+    # Transaction hash + "-swapUbeswapRouter".
+    id: ID!
+
+    timestamp: BigInt!
+
+    pool: Pool
+    cappedPool: CappedPool
+
+    executeTransactionPool: ExecuteTransactionPool
+    executeTransactionCappedPool: ExecuteTransactionCappedPool
+
+    sourceAsset: String!
+    destinationAsset: String!
+    amount: BigInt!
+}
+
+type AddLiquidityUbeswapRouter @entity {
+    # Transaction hash + "-addLiquidityUbeswapRouter".
+    id: ID!
+
+    timestamp: BigInt!
+
+    pool: Pool
+    cappedPool: CappedPool
+
+    executeTransactionPool: ExecuteTransactionPool
+    executeTransactionCappedPool: ExecuteTransactionCappedPool
+
+    tokenA: String!
+    tokenB: String!
+    pair: String!
+    amountA: BigInt!
+    amountB: BigInt!
+}
+
+type RemoveLiquidityUbeswapRouter @entity {
+    # Transaction hash + "-removeLiquidityUbeswapRouter".
+    id: ID!
+
+    timestamp: BigInt!
+
+    pool: Pool
+    cappedPool: CappedPool
+
+    executeTransactionPool: ExecuteTransactionPool
+    executeTransactionCappedPool: ExecuteTransactionCappedPool
+
+    tokenA: String!
+    tokenB: String!
+    pair: String!
+    numberOfLPTokens: BigInt!
+}
+
+type ManagedInvestment @entity {
+    # Pool ID + "-investment".
+    id: ID!
+
+    pool: Pool
+    cappedPool: CappedPool
+    manager: User!
+}
+
+# Data accumulated and condensed into day stats for Registry.
+type RegistryDayData @entity {
+  # Timestamp rounded to current day by dividing by 86400.
+  id: ID! 
+  date: Int!
+
+  txCount: Int!
+
+  dailyVolume: BigInt!
+  totalVolume: BigInt!
+
+  dailyDeposits: BigInt!
+  totalDeposits: BigInt!
+
+  dailyWithdrawals: BigInt!
+  totalWithdrawals: BigInt!
+
+  dailyPoolsCreated: Int!
+  dailyCappedPoolsCreated: Int!
+
+  totalValueLocked: BigInt!
+}
+
+type PoolHourData @entity {
+  id: ID!
+  # Unix timestamp for start of hour.
+  hourStartUnix: Int!
+  pool: Pool!
+
+  totalSupply: BigInt!
+  tokenPrice: BigInt!
+  totalValueLocked: BigInt!
+
+  hourlyVolume: BigInt!
+  hourlyTxns: Int!
+
+  positionAddresses: [String]!
+  positionBalances: [BigInt]!
+}
+
+type CappedPoolHourData @entity {
+  id: ID!
+  # Unix timestamp for start of hour.
+  hourStartUnix: Int!
+  cappedPool: CappedPool!
+
+  totalSupply: BigInt!
+  tokenPrice: BigInt!
+  totalValueLocked: BigInt!
+
+  hourlyVolume: BigInt!
+  hourlyTxns: Int!
+
+  positionAddresses: [String]!
+  positionBalances: [BigInt]!
+}
+
+type PoolDayData @entity {
+  id: ID!
+  date: Int!
+  pool: Pool!
+
+  dailyVolume: BigInt!
+  dailyTxns: Int!
+
+  totalValueLocked: BigInt!
+  totalSupply: BigInt!
+
+  tokenPrice: BigInt!
+
+  positionAddresses: [String]!
+  positionBalances: [BigInt]!
+}
+
+type CappedPoolDayData @entity {
+  id: ID!
+  date: Int!
+  cappedPool: CappedPool!
+
+  dailyVolume: BigInt!
+  dailyTxns: Int!
+
+  totalValueLocked: BigInt!
+  totalSupply: BigInt!
+
+  tokenPrice: BigInt!
+
+  positionAddresses: [String]!
+  positionBalances: [BigInt]!
+}

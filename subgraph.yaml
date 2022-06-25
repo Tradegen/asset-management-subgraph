@@ -1,4 +1,4 @@
-specVersion: 0.0.1
+specVersion: 0.0.2
 description: Tradegen is a decentralized asset management and algo trading platform on Celo.
 repository: https://github.com/Tradegen/asset-management-subgraph
 schema:
@@ -70,8 +70,6 @@ dataSources:
       eventHandlers:
         - event: Approve(address,address,uint256)
           handler: handleApprove
-        - event: UpdatedFarmAddress(address,address,address)
-          handler: handleUpdatedFarmAddress
   - kind: ethereum/contract
     name: MoolaInterestBearingTokenVerifier
     network: celo-alfajores
@@ -136,8 +134,8 @@ dataSources:
       eventHandlers:
         - event: Deposit(address,address,address,uint256)
           handler: handleDeposit
-        - event: Withdraw(address,address,address,uint256)
-          handler: handleWithdraw
+        - event: Borrow(address,address,address,uint256)
+          handler: handleBorrow
         - event: Repay(address,address,address,uint256)
           handler: handleRepay
   - kind: ethereum/contract
@@ -184,6 +182,10 @@ dataSources:
       eventHandlers:
         - event: Swap(address,address,address,uint256)
           handler: handleSwap
+        - event: AddedLiquidity((address,address,address,address,uint256,uint256))
+          handler: handleAddedLiquidity
+        - event: RemovedLiquidity((address,address,address,address,uint256,uint256))
+          handler: handledRemovedLiquidity
 templates:
   - kind: ethereum/contract
     name: Pool
@@ -207,8 +209,6 @@ templates:
           handler: handleWithdraw
         - event: ExecutedTransaction(address,address,uint256)
           handler: handleExecutedTransaction
-        - event: SetPoolManagerLogic(address)
-          handler: handleSetPoolManagerLogic
   - kind: ethereum/contract
     name: CappedPool
     network: celo-alfajores
@@ -255,3 +255,29 @@ templates:
       eventHandlers:
         - event: TransferSingle(indexed address,indexed address,indexed address,uint256,uint256)
           handler: handleTransferSingle
+  - kind: ethereum/contract
+    name: PoolManagerLogic
+    network: celo-alfajores
+    source:
+      abi: PoolManagerLogic
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ./src/mappings/PoolManagerLogic.ts
+      entities:
+        - PoolManagerLogic
+      abis:
+        - name: PoolManagerLogic
+          file: ./abis/PoolManagerLogic.json
+      eventHandlers:
+        - event: AddedDepositAsset(address)
+          handler: handleAddedDepositAsset
+        - event: RemovedDepositAsset(address)
+          handler: handleRemovedDepositAsset
+        - event: AddedAvailableAsset(address)
+          handler: handleAddedAvailableAsset
+        - event: RemovedAvailableAsset(address)
+          handler: handleRemovedAvailableAsset
+        - event: UpdatedPerformanceFee(uint256)
+          handler: handleUpdatedPerformanceFee
