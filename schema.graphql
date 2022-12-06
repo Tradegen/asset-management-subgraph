@@ -242,6 +242,8 @@ type CreatePool @entity {
 
     name: String!
 
+    # Denominated by 10000.
+    # Ex) 2% fee = 200.
     performanceFee: BigInt!
 }
 
@@ -261,8 +263,12 @@ type CreateCappedPool @entity {
 
     name: String!
 
+    # Denominated by 10000.
+    # Ex) 2% fee = 200.
     performanceFee: BigInt!
 
+    # Measured in USD.
+    # 18 decimals.
     seedPrice: BigInt!
 
     maxSupply: BigInt!
@@ -280,12 +286,16 @@ type DepositPool @entity {
 
     user: User!
 
+    # 18 decimals.
     amountOfDepositAsset: BigInt!
 
+    # 18 decimals.
     amountOfUSD: BigInt!
 
+    # Symbol of the asset.
     depositAsset: String!
 
+    # 18 decimals.
     numberOfPoolTokensReceived: BigInt!
 }
 
@@ -301,12 +311,16 @@ type DepositCappedPool @entity {
 
     user: User!
 
+    # 18 decimals.
     amountOfDepositAsset: BigInt!
 
+    # 18 decimals.
     amountOfUSD: BigInt!
 
+    # Symbol of the asset.
     depositAsset: String!
 
+    # 18 decimals.
     numberOfPoolTokensReceived: BigInt!
 }
 
@@ -322,8 +336,10 @@ type WithdrawPool @entity {
 
     user: User!
 
+    # 18 decimals.
     amountOfUSD: BigInt!
 
+    # 18 decimals.
     numberOfPoolTokensBurned: BigInt!
 }
 
@@ -339,8 +355,10 @@ type WithdrawCappedPool @entity {
 
     user: User!
 
+    # 18 decimals.
     amountOfUSD: BigInt!
 
+    # 18 decimals.
     numberOfPoolTokensBurned: BigInt!
 }
 
@@ -354,6 +372,8 @@ type TakeSnapshotCappedPool @entity {
 
     cappedPool: CappedPool!
 
+    # Measured in USD.
+    # 18 decimals.
     unrealizedProfits: BigInt!
 }
 
@@ -694,6 +714,7 @@ type ManagedInvestment @entity {
 }
 
 # Data accumulated and condensed into day stats for Registry.
+# Monetary values are measured in USD with 18 decimals.
 type RegistryDayData @entity {
   # Timestamp rounded to current day by dividing by 86400.
   id: ID! 
