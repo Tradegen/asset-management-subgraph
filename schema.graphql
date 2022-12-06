@@ -729,8 +729,8 @@ type PoolHourData @entity {
   hourlyVolume: BigInt!
   hourlyTxns: Int!
 
-  positionAddresses: [String]!
-  positionBalances: [BigInt]!
+  positionAddresses: [String!]
+  positionBalances: [BigInt!]
 }
 
 type CappedPoolHourData @entity {
@@ -746,8 +746,8 @@ type CappedPoolHourData @entity {
   hourlyVolume: BigInt!
   hourlyTxns: Int!
 
-  positionAddresses: [String]!
-  positionBalances: [BigInt]!
+  positionAddresses: [String!]
+  positionBalances: [BigInt!]
 }
 
 type PoolDayData @entity {
@@ -763,8 +763,8 @@ type PoolDayData @entity {
 
   tokenPrice: BigInt!
 
-  positionAddresses: [String]!
-  positionBalances: [BigInt]!
+  positionAddresses: [String!]
+  positionBalances: [BigInt!]
 }
 
 type CappedPoolDayData @entity {
@@ -780,6 +780,6 @@ type CappedPoolDayData @entity {
 
   tokenPrice: BigInt!
 
-  positionAddresses: [String]!
-  positionBalances: [BigInt]!
+  positionAddresses: [String!]
+  positionBalances: [BigInt!]
 }

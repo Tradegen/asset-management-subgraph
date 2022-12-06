@@ -3,11 +3,6 @@ import {
     BigDecimal,
     BigInt
   } from "@graphprotocol/graph-ts";
-  import {
-    PoolPosition,
-    NFTPoolPosition,
-    User
-  } from "../types/schema";
   import { Registry } from "../types/Registry/Registry";
   import { Pool as PoolContract} from "../types/templates/Pool/Pool";
 import { CappedPool as CappedPoolContract} from "../types/templates/CappedPool/CappedPool";

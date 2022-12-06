@@ -38,7 +38,7 @@ export function handleTransferSingle(event: TransferSingle): void {
 
     let userFrom = User.load(event.params.from.toHexString());
     if (userFrom === null) {
-        userFrom = new User(event.params.userFrom.toHexString());
+        userFrom = new User(event.params.from.toHexString());
         userFrom.totalDeposits = ZERO_BI;
         userFrom.totalWithdrawals = ZERO_BI;
         userFrom.poolDeposits = ZERO_BI;

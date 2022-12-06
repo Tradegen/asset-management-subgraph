@@ -1,5 +1,5 @@
-specVersion: 0.0.2
-description: Tradegen is a decentralized asset management and algo trading platform on Celo.
+specVersion: 0.0.1
+description: Tradegen is a decentralized trading platform that focuses on asset management, algo trading, and virtual trading.
 repository: https://github.com/Tradegen/asset-management-subgraph
 schema:
   file: ./schema.graphql

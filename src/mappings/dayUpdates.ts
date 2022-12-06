@@ -58,7 +58,7 @@ export function updatePoolDayData(event: ethereum.Event, totalSupply: BigInt, po
     poolDayData.date = dayStartTimestamp;
     poolDayData.pool = event.address.toHexString();
     poolDayData.dailyVolume = ZERO_BI;
-    poolDayData.dailyTxns = ZERO_BI;
+    poolDayData.dailyTxns = 0;
   }
 
   poolDayData.totalSupply = totalSupply;
@@ -89,7 +89,7 @@ export function updatePoolHourData(event: ethereum.Event, totalSupply: BigInt, p
     poolHourData.hourStartUnix = hourStartUnix;
     poolHourData.pool = event.address.toHexString();
     poolHourData.hourlyVolume = ZERO_BI;
-    poolHourData.hourlyTxns = ZERO_BI;
+    poolHourData.hourlyTxns = 0;
 
     // Random line to make a redeploy happen.
     poolHourData.totalSupply = ZERO_BI;
@@ -122,7 +122,7 @@ export function updateCappedPoolDayData(event: ethereum.Event, totalSupply: BigI
     poolDayData.date = dayStartTimestamp;
     poolDayData.cappedPool = event.address.toHexString();
     poolDayData.dailyVolume = ZERO_BI;
-    poolDayData.dailyTxns = ZERO_BI;
+    poolDayData.dailyTxns = 0;
   }
 
   poolDayData.totalSupply = totalSupply;
@@ -153,7 +153,7 @@ export function updateCappedPoolHourData(event: ethereum.Event, totalSupply: Big
     poolHourData.hourStartUnix = hourStartUnix;
     poolHourData.cappedPool = event.address.toHexString();
     poolHourData.hourlyVolume = ZERO_BI;
-    poolHourData.hourlyTxns = ZERO_BI;
+    poolHourData.hourlyTxns = 0;
 
     // Random line to make a redeploy happen.
     poolHourData.totalSupply = ZERO_BI;

@@ -227,5 +227,5 @@ export function handleCreatedCappedPool(event: CreatedCappedPool): void {
   CappedPoolTemplate.create(event.params.poolAddress);
 
   // Create the tracked contract based on the template.
-  CappedPoolNFTTemplate.create(cappedPoolNFTAddress as unknown as Address);
+  CappedPoolNFTTemplate.create(cappedPoolNFTAddress as Address);
 }
